@@ -41,3 +41,39 @@ dst = np.float32([[u1, v1], [u2, v2], [u3, v3], [u4, v4]])
 # 変換行列Mを求める
 M = cv2.getPerspectiveTransform(src, dst)
 
+"""
+"""
+
+
+import cv2
+import numpy as np
+
+# カメラの内部パラメータ
+focal_length = 1000
+camera_center_x = 320
+camera_center_y = 240
+
+# カメラの取り付け角度（単位：度）
+tilt_angle = 45.0
+
+# カメラの取り付け高さ
+camera_height = 2.0
+
+# 逆透視変換のための射影行列の作成
+theta = np.deg2rad(tilt_angle)
+R = np.array([[1, 0, 0], [0, np.cos(theta), -np.sin(theta)], [0, np.sin(theta), np.cos(theta)]])
+T = np.array([[0], [-camera_height], [0]])
+K = np.array([[focal_length, 0, camera_center_x], [0, focal_length, camera_center_y], [0, 0, 1]])
+P = K @ R @ np.hstack((np.identity(3), T))
+
+# 入力画像の読み込み
+img = cv2.imread('input_image.jpg')
+
+# 逆透視変換による鳥瞰図の生成
+bird_view = cv2.warpPerspective(img, P, (640, 480))
+
+# 結果の表示
+cv2.imshow('Input Image', img)
+cv2.imshow('Bird View', bird_view)
+cv2.waitKey()
+cv2.destroyAllWindows()
